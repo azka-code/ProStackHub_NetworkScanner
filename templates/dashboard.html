@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ProStackHub Network Vulnerability Scanner</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            color: #1f2937;
+        }
+
+        .header {
+            background: #111827;
+            color: white;
+            padding: 25px 40px;
+        }
+
+        .header h1 {
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #cbd5e1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .scan-box {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .scan-box h2 {
+            margin-bottom: 15px;
+        }
+
+        .scan-form {
+            display: flex;
+            gap: 10px;
+        }
+
+        .scan-form input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        .scan-form button {
+            padding: 12px 22px;
+            border: none;
+            border-radius: 6px;
+            background: #2563eb;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .scan-form button:hover {
+            background: #1d4ed8;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: white;
+            padding: 22px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .card h3 {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .card .number {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .section {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .section h2 {
+            margin-bottom: 18px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+        }
+
+        th {
+            background: #f8fafc;
+        }
+
+        .critical {
+            color: #991b1b;
+            font-weight: bold;
+        }
+
+        .high {
+            color: #dc2626;
+            font-weight: bold;
+        }
+
+        .medium {
+            color: #d97706;
+            font-weight: bold;
+        }
+
+        .low {
+            color: #15803d;
+            font-weight: bold;
+        }
+
+        .unknown {
+            color: #64748b;
+            font-weight: bold;
+        }
+
+        .empty {
+            color: #64748b;
+            padding: 15px 0;
+        }
+
+        @media (max-width: 800px) {
+            .cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .scan-form {
+                flex-direction: column;
+            }
+
+            table {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>Network Vulnerability Scanner</h1>
+        <p>ProStackHub Cyber Security Internship — Task 2</p>
+    </div>
+
+    <div class="container">
+
+        <!-- Scan Form -->
+        <div class="scan-box">
+
+            <h2>Start Network Scan</h2>
+
+            <form class="scan-form" method="POST" action="/scan">
+
+                <input
+                    type="text"
+                    name="target"
+                    placeholder="Enter authorized target, e.g. 127.0.0.1"
+                    value="{{ scan.get('target', '127.0.0.1') }}"
+                >
+
+                <button type="submit">
+                    Start Scan
+                </button>
+
+            </form>
+            <br>
+
+<a href="/generate-report" target="_blank">
+    <button type="button">
+        Generate Vulnerability Report
+    </button>
+</a>
+
+        </div>
+
+
+        <!-- Summary Cards -->
+        <div class="cards">
+
+            <div class="card">
+                <h3>Target</h3>
+                <div class="number">
+                    {{ scan.get('target', 'N/A') }}
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Host Status</h3>
+                <div class="number">
+                    {{ scan.get('host_state', 'N/A') }}
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Open Ports</h3>
+                <div class="number">
+                    {{ scan.get('ports', [])|length }}
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Vulnerabilities</h3>
+                <div class="number">
+                    {{ vulnerabilities|length }}
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- Risk Summary -->
+        <div class="section">
+
+            <h2>Risk Summary</h2>
+
+            <div class="cards">
+
+                <div class="card">
+                    <h3>Critical</h3>
+                    <div class="number critical">
+                        {{ risk.get('risk_summary', {}).get('critical', 0) }}
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>High</h3>
+                    <div class="number high">
+                        {{ risk.get('risk_summary', {}).get('high', 0) }}
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Medium</h3>
+                    <div class="number medium">
+                        {{ risk.get('risk_summary', {}).get('medium', 0) }}
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Low</h3>
+                    <div class="number low">
+                        {{ risk.get('risk_summary', {}).get('low', 0) }}
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Open Ports -->
+        <div class="section">
+
+            <h2>Detected Services & Open Ports</h2>
+
+            {% if scan.get('ports', []) %}
+
+            <table>
+
+                <tr>
+                    <th>Port</th>
+                    <th>Protocol</th>
+                    <th>State</th>
+                    <th>Service</th>
+                    <th>Product</th>
+                    <th>Version</th>
+                </tr>
+
+                {% for port in scan.get('ports', []) %}
+
+                <tr>
+                    <td>{{ port.get('port') }}</td>
+                    <td>{{ port.get('protocol') }}</td>
+                    <td>{{ port.get('state') }}</td>
+                    <td>{{ port.get('service') }}</td>
+                    <td>{{ port.get('product') }}</td>
+                    <td>{{ port.get('version') }}</td>
+                </tr>
+
+                {% endfor %}
+
+            </table>
+
+            {% else %}
+
+            <p class="empty">
+                No open ports detected.
+            </p>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- Vulnerabilities -->
+        <div class="section">
+
+            <h2>Identified Vulnerabilities</h2>
+
+            {% if vulnerabilities %}
+
+            <table>
+
+                <tr>
+<th>CVE</th>
+<th>Port</th>
+<th>Service</th>
+<th>Version</th>
+<th>CVSS</th>
+<th>Severity</th>
+<th>Remediation</th>
+                </tr>
+
+                {% for vulnerability in vulnerabilities %}
+
+                <tr>
+                    <td>{{ vulnerability.get('cve_id') }}</td>
+                    <td>{{ vulnerability.get('port') }}</td>
+                    <td>{{ vulnerability.get('service') }}</td>
+                    <td>{{ vulnerability.get('version') }}</td>
+                    <td>{{ vulnerability.get('cvss_score', 'N/A') }}</td>
+                  <td>
+    {{ vulnerability.get('remediation', 'Review service configuration and apply security updates.') }}
+</td>
+                </tr>
+
+                {% endfor %}
+
+            </table>
+
+            {% else %}
+
+            <p class="empty">
+                No CVE vulnerabilities identified for the current scan.
+            </p>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</body>
+</html>

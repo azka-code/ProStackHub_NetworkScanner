@@ -1,0 +1,23 @@
+{
+    "target": "127.0.0.1",
+    "scan_time": "2026-09-30 13:54:50",
+    "host_state": "up",
+    "ports": [
+        {
+            "port": 5000,
+            "protocol": "tcp",
+            "state": "open",
+            "service": "http",
+            "product": "Werkzeug httpd",
+            "version": "3.1.9"
+        },
+        {
+            "port": 8000,
+            "protocol": "tcp",
+            "state": "open",
+            "service": "http",
+            "product": "SimpleHTTPServer",
+            "version": "0.6"
+        }
+    ]
+}
